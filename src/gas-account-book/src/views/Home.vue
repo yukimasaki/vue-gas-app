@@ -33,7 +33,7 @@
             >
               <v-spacer/>
               <v-btn text color="grey" @click="menu = false">キャンセル</v-btn>
-              <v-btn text color="primary" @click="$refs.menu.save(yearMonth)">選択</v-btn>
+              <v-btn text color="primary" @click="onSelectMonth">選択</v-btn>
             </v-date-picker>
           </v-menu>
         </v-col>
@@ -109,6 +109,7 @@
 <script>
   import ItemDialog from '../components/ItemDialog.vue'
   import DeleteDialog from '../components/DeleteDialog.vue'
+  import { mapState, mapActions } from 'vuex'
 
   export default {
     name: 'Home',
@@ -134,13 +135,18 @@
         /** テーブルに表示させるデータ */
         tableData: [
           /** サンプルデータ */
-          { id: 'a34109ed', date: '2020-06-01', title: '支出サンプル', category: '買い物', tags: 'タグ1', income: null, outgo: 2000, memo: 'メモ' },
-          { id: '7c8fa764', date: '2020-06-02', title: '収入サンプル', category: '給料', tags:'タグ1,タグ2', income: 2000, outgo: null, memo: 'メモ' }
+          // { id: 'a34109ed', date: '2020-06-01', title: '支出サンプル', category: '買い物', tags: 'タグ1', income: null, outgo: 2000, memo: 'メモ' },
+          // { id: '7c8fa764', date: '2020-06-02', title: '収入サンプル', category: '給料', tags:'タグ1,タグ2', income: 2000, outgo: null, memo: 'メモ' }
         ]
       }
     },
 
     computed: {
+      ...mapState({
+        /** 家計簿データ */
+        abData: state => state.abData
+      }),
+
       /** テーブルのヘッダー設定 */
       tableHeaders () {
         return [
@@ -162,6 +168,30 @@
     },
 
     methods: {
+      ...mapActions([
+        /** 家計簿データを取得 */
+        'fetchAbData'
+      ]),
+
+      /** 表示させるデータを更新します */
+      updateTable () {
+        const yearMonth = this.yearMonth
+        const list = this.abData[yearMonth]
+
+        if (list) {
+          this.tableData = list
+        } else {
+          this.fetchAbData({ yearMonth })
+          this.tableData = this.abData[yearMonth]
+        }
+      },
+
+      /** 月選択ボタンがクリックされたとき */
+      onSelectMonth () {
+        this.$refs.menu.save(this.yearMonth)
+        this.updateTable()
+      },
+
       /**
        * 数字を3桁区切りにして返します。
        * 受け取った数が null のときは null を返します。
@@ -181,6 +211,11 @@
       onClickDelete (item) {
         this.$refs.deleteDialog.open(item)
       }
+    },
+
+    created () {
+      this.updateTable()
     }
+
   }
 </script>
