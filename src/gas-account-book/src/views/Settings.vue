@@ -67,14 +67,7 @@
         /** 入力したデータが有効かどうか */
         valid: false,
         /** 設定 */
-        settings: {
-          appName: 'GAS 家計簿',
-          apiUrl: '',
-          authToken: '',
-          strIncomeItems: '給料, ボーナス, 繰越',
-          strOutgoItems: '食費, 趣味, 交通費, 買い物, 交際費, 生活費, 住宅, 通信, 車, 税金',
-          strTagItems: '固定費, カード'
-        },
+        settings: { ...this.$store.state.settings },
 
         /** バリデーションルール */
         appNameRule: v => v.length <= 30 || '30文字以内で入力してください',
@@ -89,7 +82,7 @@
 
     methods: {
       onClickSave () {
-        // あとで実装
+        this.$store.dispatch('saveSettings', { settings: this.settings })
       }
     }
   }
