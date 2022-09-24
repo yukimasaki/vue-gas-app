@@ -93,7 +93,7 @@
           {{ separate(item.outgo) }}
         </template>
         <!-- 操作列 -->
-        <template v-slot:item.actions="{ item }">
+        <template v-slot:[`item.actions`]="{ item }">
           <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
           <v-icon class="mr-2" @click="onClickDelete(item)">mdi-delete</v-icon>
         </template>
