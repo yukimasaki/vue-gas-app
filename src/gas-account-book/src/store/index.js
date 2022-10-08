@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import gasApi from '../api/gasApi'
 
 Vue.use(Vuex)
 
@@ -7,18 +8,20 @@ Vue.use(Vuex)
  * State
  * Vuexの状態
  */
-const state = {
-  /** 設定 */
-  settings: {
-    appName: 'GAS 家計簿',
-    apiUrl: '',
-    authToken: '',
-    strIncomeItems: '給料, ボーナス, 繰越',
-    strOutgoItems: '食費, 趣味, 交通費, 買い物, 交際費, 生活費, 住宅, 通信, 車, 税金',
-    strTagItems: '固定費, カード'
-  },
+ const state = {
   /** 家計簿データ */
   abData: {},
+
+  /** ローディング状態 */
+  loading: {
+    fetch: false,
+    add: false,
+    update: false,
+    delete: false
+  },
+
+  /** エラーメッセージ */
+  errorMessage: '',
 }
 
 /**
@@ -75,6 +78,41 @@ const mutations = {
     }
   },
 
+  /** ローディング状態をセットします */
+  setLoading (state, { type, v }) {
+    state.loading[type] = v
+  },
+
+  /** エラーメッセージをセットします */
+  setErrorMessage (state, { message }) {
+    state.errorMessage = message
+  },
+
+  /** 設定を保存します */
+  saveSettings (state, { settings }) {
+    state.settings = { ...settings }
+    const { appName, apiUrl, authToken } = state.settings
+    document.title = appName
+    gasApi.setUrl(apiUrl)
+    gasApi.setAuthToken(authToken)
+    // 家計簿データを初期化
+    state.abData = {}
+
+    localStorage.setItem('settings', JSON.stringify(settings))
+  },
+
+  /** 設定を読み込みます */
+  loadSettings (state) {
+    const settings = JSON.parse(localStorage.getItem('settings'))
+    if (settings) {
+      state.settings = Object.assign(state.settings, settings)
+    }
+    const { appName, apiUrl, authToken } = state.settings
+    document.title = appName
+    gasApi.setUrl(apiUrl)
+    gasApi.setAuthToken(authToken)
+  }
+
 }
 
 /**
@@ -82,6 +120,21 @@ const mutations = {
  * 画面から呼ばれ、Mutationをコミットします
  */
 const actions = {
+  /** 指定年月の家計簿データを取得します */
+  async fetchAbData ({ commit }, { yearMonth }) {
+    const type = 'fetch'
+    commit('setLoading', { type, v: true })
+    try {
+      const res = await gasApi.fetch(yearMonth)
+      commit('setAbData', { yearMonth, list: res.data })
+    } catch (e) {
+      commit('setErrorMessage', { message: e })
+      commit('setAbData', { yearMonth, list: [] })
+    } finally {
+      commit('setLoading', { type, v: false })
+    }
+  },
+
   /** 設定を保存します */
   saveSettings ({ commit }, { settings }) {
     commit('saveSettings', { settings })
@@ -90,16 +143,6 @@ const actions = {
   /** 設定を読み込みます */
   loadSettings ({ commit }) {
     commit('loadSettings')
-  },
-
-  /** 指定年月の家計簿データを取得します */
-  fetchAbData ({ commit }, { yearMonth }) {
-    // サンプルデータを初期値として入れる
-    const list = [
-      { id: 'a34109ed', date: `${yearMonth}-01`, title: '支出サンプル', category: '買い物', tags: 'タグ1', income: null, outgo: 2000, memo: 'メモ' },
-      { id: '7c8fa764', date: `${yearMonth}-02`, title: '収入サンプル', category: '給料', tags:'タグ1,タグ2', income: 2000, outgo: null, memo: 'メモ' }
-    ]
-    commit('setAbData', { yearMonth, list })
   },
 
   /** データを追加します */
