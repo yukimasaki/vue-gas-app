@@ -29,23 +29,6 @@ Vue.use(Vuex)
  * ActionsからStateを更新するときに呼ばれます
  */
 const mutations = {
-  /** 設定を保存します */
-  saveSettings (state, { settings }) {
-    state.settings = { ...settings }
-    document.title = state.settings.appName
-
-    localStorage.setItem('settings', JSON.stringify(settings))
-  },
-
-  /** 設定を読み込みます */
-  loadSettings (state) {
-    const settings = JSON.parse(localStorage.getItem('settings'))
-    if (settings) {
-      state.settings = Object.assign(state.settings, settings)
-    }
-    document.title = state.settings.appName
-  },
-
   /** 指定年月の家計簿データをセットします */
   setAbData (state, { yearMonth, list }) {
     state.abData[yearMonth] = list
