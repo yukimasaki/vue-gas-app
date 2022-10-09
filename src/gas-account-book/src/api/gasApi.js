@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // 共通のヘッダーを設定したaxiosのインスタンス作成
 const gasApi = axios.create({
-  headers: { 'content-type': 'application/x-www-form-urlencoded' }
+  headers: { 'content-type': 'text/plain' }
 })
 
 // response共通処理
@@ -20,8 +20,10 @@ gasApi.interceptors.response.use(res => {
  * APIのURLを設定します
  * @param {String} url
  */
+let apiUrl = ''
+
 const setUrl = url => {
-  gasApi.defaults.baseURL = url
+  apiUrl = url
 }
 
 /**
@@ -39,7 +41,7 @@ const setAuthToken = token => {
  * @returns {Promise}
  */
 const fetch = yearMonth => {
-  return gasApi.post('', {
+  return gasApi.post(apiUrl, {
     method: 'GET',
     authToken,
     params: {
@@ -54,7 +56,7 @@ const fetch = yearMonth => {
  * @returns {Promise}
  */
 const add = item => {
-  return gasApi.post('', {
+  return gasApi.post(apiUrl, {
     method: 'POST',
     authToken,
     params: {
@@ -70,7 +72,7 @@ const add = item => {
  * @returns {Promise}
  */
 const $delete = (yearMonth, id) => {
-  return gasApi.post('', {
+  return gasApi.post(apiUrl, {
     method: 'DELETE',
     authToken,
     params: {
@@ -87,7 +89,7 @@ const $delete = (yearMonth, id) => {
  * @returns {Promise}
  */
 const update = (beforeYM, item) => {
-  return gasApi.post('', {
+  return gasApi.post(apiUrl, {
     method: 'PUT',
     authToken,
     params: {

@@ -20,47 +20,48 @@
 </template>
 
 <script>
-  import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
-  export default {
-    name: 'DeleteDialog',
+export default {
+  name: 'DeleteDialog',
 
-    data () {
-      return {
-        /** ダイアログの表示状態 */
-        show: false,
-        /** ローディング状態 */
-        loading: false,
-        /** 受け取ったデータ */
-        item: {}
-      }
+  data () {
+    return {
+      /** ダイアログの表示状態 */
+      show: false,
+      /** 受け取ったデータ */
+      item: {}
+    }
+  },
+
+  computed: mapState({
+    /** ローディング状態 */
+    loading: state => state.loading.delete
+  }),
+
+  methods: {
+    ...mapActions([
+      /** データ削除 */
+      'deleteAbData'
+    ]),
+
+    /**
+     * ダイアログを表示します。
+     * このメソッドは親から呼び出されます。
+     */    
+    open (item) {
+      this.show = true
+      this.item = item
     },
-
-    methods: {
-      ...mapActions([
-        /** データ削除 */
-        'deleteAbData'
-      ]),
-
-      /**
-       * ダイアログを表示します。
-       * このメソッドは親から呼び出されます。
-       */
-      open (item) {
-        this.show = true
-        this.item = item
-      },
-      /** キャンセルがクリックされたとき */
-      onClickClose () {
-        this.show = false
-      },
-
-      /** 削除がクリックされたとき */
-      onClickDelete () {
-        this.deleteAbData({ item: this.item })
-        this.show = false
-      }
-
+    /** キャンセルがクリックされたとき */
+    onClickClose () {
+      this.show = false
+    },
+    /** 削除がクリックされたとき */
+    async onClickDelete () {
+      await this.deleteAbData({ item: this.item })
+      this.show = false
     }
   }
-  </script>
+}
+</script>

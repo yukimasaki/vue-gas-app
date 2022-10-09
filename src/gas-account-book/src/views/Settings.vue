@@ -56,41 +56,42 @@
 </template>
 
 <script>
-  export default {
-    name: 'Settings',
+export default {
+  name: 'Settings',
 
-    data () {
-      const createItems = v => v.split(',').map(v => v.trim()).filter(v => v.length !== 0)
-      const itemMaxLength = v => createItems(v).reduce((a, c) => Math.max(a, c.length), 0)
+  data () {
+    const createItems = v => v.split(',').map(v => v.trim()).filter(v => v.length !== 0)
+    const itemMaxLength = v => createItems(v).reduce((a, c) => Math.max(a, c.length), 0)
 
-      return {
-        /** 入力したデータが有効かどうか */
-        valid: false,
-        /** 設定 */
-        settings: { ...this.$store.state.settings },
+    return {
+      /** 入力したデータが有効かどうか */
+      valid: false,
+      /** 設定 */
+      settings: { ...this.$store.state.settings },
 
-        /** バリデーションルール */
-        appNameRule: v => v.length <= 30 || '30文字以内で入力してください',
-        stringRule: v => v.length <= 150 || '150文字以内で入力してください',
-        categoryRules: [
-          v => createItems(v).length !== 0 || 'カテゴリは1つ以上必要です',
-          v => itemMaxLength(v) <= 4 || '各カテゴリは4文字以内で入力してください'
-        ],
-        tagRule: v => itemMaxLength(v) <= 4 || '各タグは4文字以内で入力してください'
-      }
-    },
+      /** バリデーションルール */
+      appNameRule: v => v.length <= 30 || '30文字以内で入力してください',
+      stringRule: v => v.length <= 150 || '150文字以内で入力してください',
+      categoryRules: [
+        v => createItems(v).length !== 0 || 'カテゴリは1つ以上必要です',
+        v => itemMaxLength(v) <= 4 || '各カテゴリは4文字以内で入力してください'
+      ],
+      tagRule: v => itemMaxLength(v) <= 4 || '各タグは4文字以内で入力してください'
+    }
+  },
 
-    methods: {
-      onClickSave () {
-        this.$store.dispatch('saveSettings', { settings: this.settings })
-      }
+  methods: {
+    /** 保存ボタンがクリックされたとき */
+    onClickSave () {
+      this.$store.dispatch('saveSettings', { settings: this.settings })
     }
   }
-  </script>
+}
+</script>
 
-  <style>
-  .form-wrapper {
-    max-width: 500px;
-    margin: auto;
-  }
+<style>
+.form-wrapper {
+  max-width: 500px;
+  margin: auto;
+}
 </style>

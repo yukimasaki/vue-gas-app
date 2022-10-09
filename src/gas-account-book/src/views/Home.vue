@@ -4,7 +4,7 @@
       <v-card-title>
         <!-- 月選択 -->
         <v-col cols="8">
-          <v-menu
+          <v-menu 
             ref="menu"
             v-model="menu"
             :close-on-content-click="false"
@@ -95,7 +95,7 @@
         <!-- 操作列 -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
-          <v-icon class="mr-2" @click="onClickDelete(item)">mdi-delete</v-icon>
+          <v-icon @click="onClickDelete(item)">mdi-delete</v-icon>
         </template>
       </v-data-table>
     </v-card>
@@ -107,111 +107,111 @@
 </template>
 
 <script>
-  import ItemDialog from '../components/ItemDialog.vue'
-  import DeleteDialog from '../components/DeleteDialog.vue'
-  import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
-  export default {
-    name: 'Home',
-    components: {
+import ItemDialog from '../components/ItemDialog.vue'
+import DeleteDialog from '../components/DeleteDialog.vue'
+
+export default {
+  name: 'Home',
+
+  components: {
     ItemDialog,
     DeleteDialog
   },
 
-    data () {
-      const today = new Date()
-      const year = today.getFullYear()
-      const month = ('0' + (today.getMonth() + 1)).slice(-2)
+  data () {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = ('0' + (today.getMonth() + 1)).slice(-2)
 
-      return {
-        /** 月選択メニューの状態 */
-        menu: false,
-        /** 検索文字 */
-        search: '',
-        /** 選択年月 */
-        yearMonth: `${year}-${month}`,
-        /** テーブルに表示させるデータ */
-        tableData: []
-      }
-    },
+    return {
+      /** 月選択メニューの状態 */
+      menu: false,
+      /** 検索文字 */
+      search: '',
+      /** 選択年月 */
+      yearMonth: `${year}-${month}`,
+      /** テーブルに表示させるデータ */
+      tableData: []
+    }
+  },
 
-    computed: {
-      ...mapState({
+  computed: {
+    ...mapState({
       /** 家計簿データ */
       abData: state => state.abData,
       /** ローディング状態 */
       loading: state => state.loading.fetch,
     }),
 
-      /** テーブルのヘッダー設定 */
-      tableHeaders () {
-        return [
-          { text: '日付', value: 'date', align: 'end' },
-          { text: 'タイトル', value: 'title', sortable: false },
-          { text: 'カテゴリ', value: 'category', sortable: false },
-          { text: 'タグ', value: 'tags', sortable: false },
-          { text: '収入', value: 'income', align: 'end' },
-          { text: '支出', value: 'outgo', align: 'end' },
-          { text: 'メモ', value: 'memo', sortable: false },
-          { text: '操作', value: 'actions', sortable: false }
-        ]
-      },
-
-      /** テーブルのフッター設定 */
-      footerProps () {
-        return { itemsPerPageText: '', itemsPerPageOptions: [] }
-      }
+    /** テーブルのヘッダー設定 */
+    tableHeaders () {
+      return [
+        { text: '日付', value: 'date', align: 'end' },
+        { text: 'タイトル', value: 'title', sortable: false },
+        { text: 'カテゴリ', value: 'category', sortable: false },
+        { text: 'タグ', value: 'tags', sortable: false },
+        { text: '収入', value: 'income', align: 'end' },
+        { text: '支出', value: 'outgo', align: 'end' },
+        { text: 'メモ', value: 'memo', sortable: false },
+        { text: '操作', value: 'actions', sortable: false }
+      ]
     },
 
-    methods: {
-      ...mapActions([
-        /** 家計簿データを取得 */
-        'fetchAbData'
-      ]),
-
-      /** 表示させるデータを更新します */
-      async updateTable () {
-        const yearMonth = this.yearMonth
-        const list = this.abData[yearMonth]
-
-        if (list) {
-          this.tableData = list
-        } else {
-          await this.fetchAbData({ yearMonth })
-          this.tableData = this.abData[yearMonth]
-        }
-      },
-
-      /** 月選択ボタンがクリックされたとき */
-      onSelectMonth () {
-        this.$refs.menu.save(this.yearMonth)
-        this.updateTable()
-      },
-
-      /**
-       * 数字を3桁区切りにして返します。
-       * 受け取った数が null のときは null を返します。
-       */
-      separate (num) {
-        return num !== null ? num.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') : null
-      },
-      /** 追加ボタンがクリックされたとき */
-      onClickAdd () {
-        this.$refs.itemDialog.open('add')
-      },
-      /** 編集ボタンがクリックされたとき */
-      onClickEdit (item) {
-        this.$refs.itemDialog.open('edit', item)
-      },
-      /** 削除ボタンがクリックされたとき */
-      onClickDelete (item) {
-        this.$refs.deleteDialog.open(item)
-      }
-    },
-
-    created () {
-      this.updateTable()
+    /** テーブルのフッター設定 */
+    footerProps () {
+      return { itemsPerPageText: '', itemsPerPageOptions: [] }
     }
+  },
 
+  methods: {
+    ...mapActions([
+      /** 家計簿データを取得 */
+      'fetchAbData'
+    ]),
+
+    /** 表示させるデータを更新します */
+    async updateTable () {
+      const yearMonth = this.yearMonth
+      const list = this.abData[yearMonth]
+
+      if (list) {
+        this.tableData = list
+      } else {
+        await this.fetchAbData({ yearMonth })
+        this.tableData = this.abData[yearMonth]
+      }
+    },
+
+    /**
+     * 数字を3桁区切りにして返します。
+     * 受け取った数が null のときは null を返します。
+     */
+    separate (num) {
+      return num !== null ? num.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') : null
+    },
+    /** 月選択ボタンがクリックされたとき */
+    onSelectMonth () {
+      this.$refs.menu.save(this.yearMonth)
+      this.updateTable()
+    },
+    /** 追加ボタンがクリックされたとき */
+    onClickAdd () {
+      this.$refs.itemDialog.open('add')
+    },
+    /** 編集ボタンがクリックされたとき */
+    onClickEdit (item) {
+      this.$refs.itemDialog.open('edit', item)
+    },
+    /** 削除ボタンがクリックされたとき */
+    onClickDelete (item) {
+      this.$refs.deleteDialog.open(item)
+    }
+  },
+
+  created () {
+    this.updateTable()
   }
+}
 </script>
